@@ -3,6 +3,7 @@ package com.fit2081.a1ryanhii34466576.ui.screen
 import android.content.Context
 import android.content.SharedPreferences
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
@@ -11,11 +12,32 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.fit2081.a1ryanhii34466576.R
+
+val personas = listOf(
+    "Health Devotee" to "I’m passionate about healthy eating & health plays a big part in my life. I use social media to follow active lifestyle personalities or get new recipes/exercise ideas. I may even buy superfoods or follow a particular type of diet. I like to think I am super healthy.",
+    "Mindful Eater" to "I’m health-conscious and being healthy and eating healthy is important to me. Although health means different things to different people, I make conscious lifestyle decisions about eating based on what I believe healthy means. I look for new recipes and healthy eating information on social media.",
+    "Wellness Striver" to "I aspire to be healthy (but struggle sometimes). Healthy eating is hard work! I’ve tried to improve my diet, but always find things that make it difficult to stick with the changes. Sometimes I notice recipe ideas or healthy eating hacks, and if it seems easy enough, I’ll give it a go.",
+    "Balance Seeker" to "I try and live a balanced lifestyle, and I think that all foods are okay in moderation. I shouldn’t have to feel guilty about eating a piece of cake now and again. I get all sorts of inspiration from social media like finding out about new restaurants, fun recipes and sometimes healthy eating tips.",
+    "Health Procrastinator" to "I’m contemplating healthy eating but it’s not a priority for me right now. I know the basics about what it means to be healthy, but it doesn’t seem relevant to me right now. I have taken a few steps to be healthier but I am not motivated to make it a high priority because I have too many other things going on in my life.",
+    "Food Carefree" to "I’m not bothered about healthy eating. I don’t really see the point and I don’t think about it. I don’t really notice healthy eating tips or recipes and I don’t care what I eat."
+)
+
+val personaImages = listOf(
+    R.drawable.persona1,
+    R.drawable.persona2,
+    R.drawable.persona3,
+    R.drawable.persona4,
+    R.drawable.persona5,
+    R.drawable.persona6
+)
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,14 +65,6 @@ fun QuestionnaireScreen(navController: NavController) {
         "Fish",
         "Eggs",
         "Nuts/Seeds"
-    )
-    val personas = listOf(
-        "Health Devotee" to "I’m passionate about healthy eating & health plays a big part in my life. I use social media to follow active lifestyle personalities or get new recipes/exercise ideas. I may even buy superfoods or follow a particular type of diet. I like to think I am super healthy.",
-        "Mindful Eater" to "I’m health-conscious and being healthy and eating healthy is important to me. Although health means different things to different people, I make conscious lifestyle decisions about eating based on what I believe healthy means. I look for new recipes and healthy eating information on social media.",
-        "Wellness Striver" to "I aspire to be healthy (but struggle sometimes). Healthy eating is hard work! I’ve tried to improve my diet, but always find things that make it difficult to stick with the changes. Sometimes I notice recipe ideas or healthy eating hacks, and if it seems easy enough, I’ll give it a go.",
-        "Balance Seeker" to "I try and live a balanced lifestyle, and I think that all foods are okay in moderation. I shouldn’t have to feel guilty about eating a piece of cake now and again. I get all sorts of inspiration from social media like finding out about new restaurants, fun recipes and sometimes healthy eating tips.",
-        "Health Procrastinator" to "I’m contemplating healthy eating but it’s not a priority for me right now. I know the basics about what it means to be healthy, but it doesn’t seem relevant to me right now. I have taken a few steps to be healthier but I am not motivated to make it a high priority because I have too many other things going on in my life.",
-        "Food Carefree" to "I’m not bothered about healthy eating. I don’t really see the point and I don’t think about it. I don’t really notice healthy eating tips or recipes and I don’t care what I eat."
     )
 
     Box(
@@ -251,7 +265,7 @@ fun QuestionnaireScreen(navController: NavController) {
                     sleepTime,
                     wakeUpTime
                 )
-                Toast.makeText(context, "Data Saved", Toast.LENGTH_LONG).show()
+                Toast.makeText(context, "Data Saved", Toast.LENGTH_SHORT).show()
                 navController.navigate("home")
             },
             modifier = Modifier
@@ -262,16 +276,46 @@ fun QuestionnaireScreen(navController: NavController) {
         }
     }
 
+    PersonaModal(
+        showDialog = showDialog,
+        onDismiss = { showDialog = false },
+        selectedPersona = selectedPersona,
+        personaDescription = personaDescription
+    )
+}
+
+@Composable
+private fun PersonaModal(
+    showDialog: Boolean,
+    onDismiss: () -> Unit,
+    selectedPersona: String,
+    personaDescription: String
+) {
     if (showDialog) {
+        val personaIndex = personas.indexOfFirst { it.first == selectedPersona }
+        val imageResId = personaImages[personaIndex]
+
         AlertDialog(
-            onDismissRequest = { showDialog = false },
+            onDismissRequest = onDismiss,
             confirmButton = {
-                Button(onClick = { showDialog = false }) {
-                    Text("OK")
+                Button(onClick = onDismiss) {
+                    Text("Dismiss")
                 }
             },
             title = { Text(text = selectedPersona) },
-            text = { Text(text = personaDescription) }
+            text = {
+                Column {
+                    Image(
+                        painter = painterResource(id = imageResId),
+                        contentDescription = "$selectedPersona Image",
+                        modifier = Modifier
+                            .size(128.dp)
+                            .align(Alignment.CenterHorizontally)
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(text = personaDescription)
+                }
+            }
         )
     }
 }
