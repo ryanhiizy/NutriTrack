@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Black
@@ -18,9 +19,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fit2081.a1ryanhii34466576.R
 import androidx.core.net.toUri
+import androidx.navigation.NavController
 
 @Composable
-fun WelcomeScreen() {
+fun WelcomeScreen(navController: NavController) {
     val context = LocalContext.current
 
     Box(
@@ -36,40 +38,32 @@ fun WelcomeScreen() {
             verticalArrangement = Arrangement.Center
         ) {
             Spacer(modifier = Modifier.height(16.dp))
+
             Text(
                 text = "NutriTrack",
                 fontSize = 48.sp,
                 fontWeight = Black,
                 textAlign = TextAlign.Center
             )
+
             Image(
                 painter = painterResource(id = R.drawable.logo),
                 contentDescription = "NutriTrack Logo",
                 modifier = Modifier.size(128.dp)
             )
+
             Spacer(modifier = Modifier.height(16.dp))
+
             Text(
-                text = "This app provides general health and nutrition information for educational purposes only. It is not intended as medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional before making any changes to your diet, exercise, or health regimen. Use this app at your own risk. If you’d like to an Accredited Practicing Dietitian (APD), please visit the Monash Nutrition/Dietetics Clinic (discounted rates for students):",
+                text = "This app provides general health and nutrition information for educational purposes only. It is not intended as medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional before making any changes to your diet, exercise, or health regimen. Use this app at your own risk. If you’d like to an Accredited Practicing Dietitian (APD), please visit the Monash Nutrition/Dietetics Clinic (discounted rates for students): https://www.monash.edu/medicine/scs/nutrition/clinics/nutrition",
                 fontStyle = Italic,
                 textAlign = TextAlign.Center
             )
+
             Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "https://www.monash.edu/medicine/scs/nutrition/clinics/nutrition",
-                fontStyle = Italic,
-                textAlign = TextAlign.Center,
-                color = androidx.compose.ui.graphics.Color.Blue,
-                modifier = Modifier.clickable {
-                    val intent = Intent(
-                        Intent.ACTION_VIEW,
-                        "https://www.monash.edu/medicine/scs/nutrition/clinics/nutrition".toUri()
-                    )
-                    context.startActivity(intent)
-                }
-            )
-            Spacer(modifier = Modifier.height(16.dp))
+
             Button(
-                onClick = { /* Navigate to login screen */ }
+                onClick = { navController.navigate("login") }
             ) {
                 Text(text = "Login")
             }
@@ -79,7 +73,6 @@ fun WelcomeScreen() {
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 16.dp)
         )
     }
 }
