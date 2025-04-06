@@ -1,11 +1,11 @@
 package com.fit2081.a1ryanhii34466576.ui.screen
 
+import android.app.TimePickerDialog
 import android.content.Context
 import android.content.SharedPreferences
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
 import androidx.compose.runtime.*
@@ -14,11 +14,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import com.fit2081.a1ryanhii34466576.R
+import java.util.Calendar
+import java.util.Locale
 
 val personas = listOf(
     "Health Devotee" to "I’m passionate about healthy eating & health plays a big part in my life. I use social media to follow active lifestyle personalities or get new recipes/exercise ideas. I may even buy superfoods or follow a particular type of diet. I like to think I am super healthy.",
@@ -38,12 +41,12 @@ val personaImages = listOf(
     R.drawable.persona6
 )
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun QuestionnaireScreen(navController: NavController) {
+fun QuestionnaireScreen(navController: NavController, navBackStackEntry: NavBackStackEntry) {
     val context = LocalContext.current
-    val sharedPreferences = context.getSharedPreferences("FoodIntakePrefs", Context.MODE_PRIVATE)
+    val calendar = Calendar.getInstance()
+    val userId: String? = navBackStackEntry.arguments?.getString("userId")
 
     var selectedCategories by remember { mutableStateOf(setOf<String>()) }
     var selectedPersona by remember { mutableStateOf("") }
@@ -77,11 +80,19 @@ fun QuestionnaireScreen(navController: NavController) {
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
         ) {
-            Text(text = "Food Intake Questionnaire", style = MaterialTheme.typography.titleLarge)
+            Text(
+                text = "Food Intake Questionnaire",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(text = "Tick all the food categories you can eat", fontWeight = FontWeight.Bold)
+            Text(
+                text = "Tick all the food categories you can eat",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Medium
+            )
             Spacer(modifier = Modifier.height(8.dp))
 
             Column(modifier = Modifier.fillMaxWidth()) {
@@ -118,7 +129,7 @@ fun QuestionnaireScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(text = "Your Persona", fontWeight = FontWeight.Bold)
+            Text(text = "Your Persona", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = "People can be broadly classified into 6 different types based on their eating preferences. Click on each button below to find out the different types, and select the type that best fits you!",
@@ -152,6 +163,7 @@ fun QuestionnaireScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            // Referenced from: https://medium.com/@german220291/building-a-custom-exposed-dropdown-menu-with-jetpack-compose-d65232535bf2
             ExposedDropdownMenuBox(
                 expanded = expanded,
                 onExpandedChange = { expanded = !expanded },
@@ -162,7 +174,7 @@ fun QuestionnaireScreen(navController: NavController) {
                     value = dropdownSelectedPersona,
                     onValueChange = {},
                     label = { Text(text = "Select Persona") },
-                    trailingIcon = {
+                    leadingIcon = {
                         TrailingIcon(expanded = expanded)
                     },
                     colors = OutlinedTextFieldDefaults.colors(),
@@ -186,14 +198,12 @@ fun QuestionnaireScreen(navController: NavController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Text(text = "Timings", fontWeight = FontWeight.Bold)
+            Text(text = "Timings", style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
 
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .defaultMinSize(minHeight = 280.dp),
-                horizontalAlignment = Alignment.Start,
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.Start
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -207,9 +217,19 @@ fun QuestionnaireScreen(navController: NavController) {
                     OutlinedTextField(
                         value = biggestMealTime,
                         onValueChange = { biggestMealTime = it },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier
-                            .width(80.dp)
+                        readOnly = true,
+                        modifier = Modifier.width(120.dp),
+                        leadingIcon = {
+                            IconButton(onClick = {
+                                showTimePicker(
+                                    context,
+                                    { time -> biggestMealTime = time },
+                                    calendar
+                                )
+                            }) {
+                                Text("🕒")
+                            }
+                        }
                     )
                 }
 
@@ -227,9 +247,19 @@ fun QuestionnaireScreen(navController: NavController) {
                     OutlinedTextField(
                         value = sleepTime,
                         onValueChange = { sleepTime = it },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier
-                            .width(80.dp)
+                        readOnly = true,
+                        modifier = Modifier.width(120.dp),
+                        leadingIcon = {
+                            IconButton(onClick = {
+                                showTimePicker(
+                                    context,
+                                    { time -> sleepTime = time },
+                                    calendar
+                                )
+                            }) {
+                                Text("🕒")
+                            }
+                        }
                     )
                 }
 
@@ -247,9 +277,19 @@ fun QuestionnaireScreen(navController: NavController) {
                     OutlinedTextField(
                         value = wakeUpTime,
                         onValueChange = { wakeUpTime = it },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier
-                            .width(80.dp)
+                        readOnly = true,
+                        modifier = Modifier.width(120.dp),
+                        leadingIcon = {
+                            IconButton(onClick = {
+                                showTimePicker(
+                                    context,
+                                    { time -> wakeUpTime = time },
+                                    calendar
+                                )
+                            }) {
+                                Text("🕒")
+                            }
+                        }
                     )
                 }
             }
@@ -257,16 +297,22 @@ fun QuestionnaireScreen(navController: NavController) {
 
         Button(
             onClick = {
-                saveData(
-                    sharedPreferences,
-                    selectedCategories,
-                    selectedPersona,
-                    biggestMealTime,
-                    sleepTime,
-                    wakeUpTime
-                )
-                Toast.makeText(context, "Data Saved", Toast.LENGTH_SHORT).show()
-                navController.navigate("home")
+                if (selectedCategories.isEmpty() || dropdownSelectedPersona.isEmpty() || biggestMealTime.isEmpty() || sleepTime.isEmpty() || wakeUpTime.isEmpty() || userId.isNullOrEmpty()) {
+                    Toast.makeText(context, "Please fill all fields", Toast.LENGTH_LONG).show()
+                } else {
+                    val userPref = context.getSharedPreferences(userId, Context.MODE_PRIVATE)
+                    saveData(
+                        userPref,
+                        selectedCategories,
+                        dropdownSelectedPersona,
+                        biggestMealTime,
+                        sleepTime,
+                        wakeUpTime
+                    )
+                    navController.navigate("home/$userId") {
+                        popUpTo("questionnaire/$userId") { inclusive = true }
+                    }
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -313,22 +359,40 @@ private fun PersonaModal(
                             .align(Alignment.CenterHorizontally)
                     )
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text(text = personaDescription)
+                    Text(text = personaDescription, textAlign = TextAlign.Justify)
                 }
             }
         )
     }
 }
 
+private fun showTimePicker(
+    context: Context,
+    onTimeSelected: (String) -> Unit,
+    calendar: Calendar
+) {
+    val timePicker = TimePickerDialog(
+        context,
+        { _, hourOfDay, minute ->
+            val time = String.format(Locale.getDefault(), "%02d:%02d", hourOfDay, minute)
+            onTimeSelected(time)
+        },
+        calendar.get(Calendar.HOUR_OF_DAY),
+        calendar.get(Calendar.MINUTE),
+        true
+    )
+    timePicker.show()
+}
+
 private fun saveData(
-    sharedPreferences: SharedPreferences,
+    userPref: SharedPreferences,
     selectedCategories: Set<String>,
     selectedPersona: String,
     biggestMealTime: String,
     sleepTime: String,
     wakeUpTime: String
 ) {
-    with(sharedPreferences.edit()) {
+    with(userPref.edit()) {
         putStringSet("selectedCategories", selectedCategories)
         putString("selectedPersona", selectedPersona)
         putString("biggestMealTime", biggestMealTime)
