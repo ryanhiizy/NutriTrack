@@ -32,7 +32,7 @@ object CsvReader {
             val inputStream = context.assets.open("UserData.csv")
             val reader = BufferedReader(InputStreamReader(inputStream))
 
-            reader.readLine() // Skip header
+            reader.readLine()
 
             reader.forEachLine { line ->
                 val tokens = line.split(",").map { it.trim() }
