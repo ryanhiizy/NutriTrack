@@ -1,16 +1,12 @@
 package com.fit2081.a1ryanhii34466576.ui.screen
 
-import android.content.Intent
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color.Companion.Blue
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight.Companion.Black
 import androidx.compose.ui.text.font.FontStyle.Companion.Italic
@@ -18,13 +14,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fit2081.a1ryanhii34466576.R
-import androidx.core.net.toUri
 import androidx.navigation.NavController
 
 @Composable
 fun WelcomeScreen(navController: NavController) {
-    val context = LocalContext.current
-
     Box(
         modifier = Modifier
             .fillMaxSize()
