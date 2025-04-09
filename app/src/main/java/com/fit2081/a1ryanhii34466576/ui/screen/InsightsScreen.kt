@@ -2,7 +2,6 @@ package com.fit2081.a1ryanhii34466576.ui.screen
 
 import android.content.Intent
 import android.content.Intent.ACTION_SEND
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -27,8 +26,6 @@ fun InsightsScreen(navController: NavController, navBackStackEntry: NavBackStack
     val context = LocalContext.current
     val userId: String = navBackStackEntry.arguments?.getString("userId") ?: "Guest"
     val user: User? = getUserById(userId, context)
-
-    Log.d("InsightsScreen", "User: $user")
 
     Column(
         modifier = Modifier
