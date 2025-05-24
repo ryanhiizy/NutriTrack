@@ -121,9 +121,11 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
         Button(
             onClick = {
                 // Ensure both fields are filled
-                if (selectedUserId.isBlank() || password.isBlank()) {
-                    errorMessage = "Please enter User ID and Password"
-                    return@Button
+                errorMessage = when {
+                    selectedUserId.isBlank() && password.isBlank() -> "Please fill all fields"
+                    selectedUserId.isBlank() -> "Please select a user ID"
+                    password.isBlank() -> "Please enter your password"
+                    else -> null
                 }
 
                 loginViewModel.authenticate(selectedUserId, password) { success, user ->
