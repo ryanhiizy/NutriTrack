@@ -13,7 +13,7 @@ import com.fit2081.a1ryanhii34466576.data.model.Patient
 
 @Database(
     entities = [Patient::class, FoodIntake::class, NutriCoachTip::class],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 abstract class NutriTrackDatabase : RoomDatabase() {
