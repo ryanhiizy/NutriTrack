@@ -1,0 +1,61 @@
+package com.fit2081.a1ryanhii34466576.data.model
+
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "patients")
+data class Patient(
+    @PrimaryKey val userId: String,
+    val phoneNumber: String,
+    val name: String = "",
+    val password: String = "",
+    val sex: String,
+
+    val foodScore: Double,
+    val discretionaryScore: Double,
+    val vegetableScore: Double,
+    val fruitScore: Double,
+    val grainsCerealsScore: Double,
+    val wholeGrainsScore: Double,
+    val meatAlternativesScore: Double,
+    val dairyAlternativesScore: Double,
+    val sodiumScore: Double,
+    val alcoholScore: Double,
+    val waterScore: Double,
+    val sugarScore: Double,
+    val saturatedFatScore: Double,
+    val unsaturatedFatScore: Double,
+
+    val discretionaryServeSize: Double,
+    val vegetablesWithLegumesAllocatedServeSize: Double,
+    val legumesAllocatedVegetables: Double,
+    val vegetablesVariationsScore: Double,
+    val vegetablesCruciferous: Double,
+    val vegetablesTuberAndBulb: Double,
+    val vegetablesOther: Double,
+    val legumes: Double,
+    val vegetablesGreen: Double,
+    val vegetablesRedAndOrange: Double,
+    val fruitServeSize: Double,
+    val fruitVariationsScore: Double,
+    val fruitPome: Double,
+    val fruitTropicalAndSubtropical: Double,
+    val fruitBerry: Double,
+    val fruitStone: Double,
+    val fruitCitrus: Double,
+    val fruitOther: Double,
+    val grainsCerealsServeSize: Double,
+    val grainsCerealsNonWholeGrains: Double,
+    val wholeGrainsServeSize: Double,
+    val meatAlternativesWithLegumesAllocatedServeSize: Double,
+    val legumesAllocatedMeatAlternatives: Double,
+    val dairyAlternativesServeSize: Double,
+    val sodiumMgMilligrams: Double,
+    val alcoholStandardDrinks: Double,
+    val water: Double,
+    val waterTotalMl: Double,
+    val beverageTotalMl: Double,
+    val sugar: Double,
+    val saturatedFat: Double,
+    val unsaturatedFatServeSize: Double
+)
