@@ -22,6 +22,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,12 +41,22 @@ import androidx.navigation.NavController
 @Composable
 fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = viewModel()) {
     val claimedUsers by loginViewModel.claimedUsers.collectAsState()
+    val navTarget by loginViewModel.loginNavigationTarget.collectAsState()
 
     var selectedUserId by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var showPassword by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var expanded by remember { mutableStateOf(false) }
+
+    LaunchedEffect(navTarget) {
+        navTarget?.let {
+            navController.navigate(it) {
+                popUpTo("login") { inclusive = true }
+            }
+            loginViewModel.clearNavigationTarget()
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -120,7 +131,6 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
 
         Button(
             onClick = {
-                // Ensure both fields are filled
                 errorMessage = when {
                     selectedUserId.isBlank() && password.isBlank() -> "Please fill all fields"
                     selectedUserId.isBlank() -> "Please select a user ID"
@@ -128,18 +138,18 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
                     else -> null
                 }
 
-                loginViewModel.authenticate(selectedUserId, password) { success, user ->
-                    if (success && user != null) {
-                        navController.navigate("home/${user.userId}") {
-                            popUpTo("login") { inclusive = true }
+                if (errorMessage == null) {
+                    loginViewModel.authenticate(selectedUserId, password) { success ->
+                        if (!success) {
+                            errorMessage = "Invalid credentials"
                         }
-                    } else {
-                        errorMessage = "Invalid credentials"
                     }
                 }
             },
             modifier = Modifier.fillMaxWidth()
-        ) { Text("Continue") }
+        ) {
+            Text("Continue")
+        }
 
         TextButton(onClick = { navController.navigate("register") }) {
             Text("Don't have an account? Register")

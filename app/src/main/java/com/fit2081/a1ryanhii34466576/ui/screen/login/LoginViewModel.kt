@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.fit2081.a1ryanhii34466576.data.model.Patient
 import com.fit2081.a1ryanhii34466576.data.preferences.SessionManager
+import com.fit2081.a1ryanhii34466576.data.repository.FoodIntakeRepository
 import com.fit2081.a1ryanhii34466576.data.repository.PatientRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +15,8 @@ import kotlinx.coroutines.launch
 import org.mindrot.jbcrypt.BCrypt
 
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
-    private val repository = PatientRepository(application.applicationContext)
+    private val patientRepository = PatientRepository(application.applicationContext)
+    private val intakeRepository = FoodIntakeRepository(application.applicationContext)
     private val sessionManager = SessionManager(application.applicationContext)
 
     private val _claimedUsers = MutableStateFlow<List<Patient>>(emptyList())
@@ -26,6 +28,9 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     private val _loggedInUserId = MutableStateFlow<String?>(sessionManager.getLoggedInUserId())
     val loggedInUserId: StateFlow<String?> = _loggedInUserId.asStateFlow()
 
+    private val _loginNavigationTarget = MutableStateFlow<String?>(null)
+    val loginNavigationTarget: StateFlow<String?> = _loginNavigationTarget.asStateFlow()
+
     init {
         loadClaimedUsers()
     }
@@ -34,7 +39,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         viewModelScope.launch {
             try {
                 // Load all patients and filter those with non-blank passwords
-                repository.getAllPatients().collect { patients ->
+                patientRepository.getAllPatients().collect { patients ->
                     _claimedUsers.value = patients.filter { it.password.isNotBlank() }
                 }
             } catch (e: Exception) {
@@ -43,25 +48,38 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun authenticate(userId: String, password: String, onResult: (Boolean, Patient?) -> Unit) {
+    fun authenticate(userId: String, password: String, onResult: (Boolean) -> Unit) {
         viewModelScope.launch {
             try {
-                val patient = repository.getPatientById(userId)
+                val patient = patientRepository.getPatientById(userId)
 
-                // Check if the patient exists and the password matches
+                // Check if the patient exists and if the password matches
                 if (patient != null && BCrypt.checkpw(password, patient.password)) {
                     // Save the user session
                     sessionManager.saveUserSession(userId)
                     _isLoggedIn.value = true
                     _loggedInUserId.value = userId
-                    onResult(true, patient)
+
+                    // Determine redirection target based on food intake
+                    val intake = intakeRepository.getFoodIntake(userId)
+                    _loginNavigationTarget.value = if (intake == null) {
+                        "questionnaire/$userId"
+                    } else {
+                        "home/$userId"
+                    }
+
+                    onResult(true)
                 } else {
-                    onResult(false, null)
+                    onResult(false)
                 }
             } catch (e: Exception) {
                 Log.e("LoginViewModel", "Authentication failed", e)
-                onResult(false, null)
+                onResult(false)
             }
         }
+    }
+
+    fun clearNavigationTarget() {
+        _loginNavigationTarget.value = null
     }
 }
