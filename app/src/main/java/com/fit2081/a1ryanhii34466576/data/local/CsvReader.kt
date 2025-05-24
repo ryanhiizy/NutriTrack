@@ -1,6 +1,7 @@
 package com.fit2081.a1ryanhii34466576.data.local
 
 import android.content.Context
+import android.util.Log
 import com.fit2081.a1ryanhii34466576.data.model.Patient
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -220,7 +221,7 @@ object CsvReader {
             }
             reader.close()
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("CsvReader", "Error reading CSV file", e)
         }
         return patients
     }
