@@ -2,6 +2,7 @@ package com.fit2081.a1ryanhii34466576.data.local
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.util.Log
 import androidx.core.content.edit
 import com.fit2081.a1ryanhii34466576.data.repository.PatientRepository
 import kotlinx.coroutines.CoroutineScope
@@ -19,9 +20,21 @@ object DatabaseSeeder {
             // Seed the database with initial data
             CoroutineScope(Dispatchers.IO).launch {
                 val repository = PatientRepository(context)
-                val patients = CsvReader.loadUserData(context)
-                repository.insertAllPatients(patients)
-                markDatabaseAsSeeded(prefs)
+
+                try {
+                    val patients = CsvReader.loadUserData(context)
+
+                    // Only mark the database as seeded if we successfully read patients
+                    if (patients.isNotEmpty()) {
+                        repository.insertAllPatients(patients)
+                        markDatabaseAsSeeded(prefs)
+                    } else {
+                        Log.w("DatabaseSeeder", "No patients found in CSV")
+                    }
+                } catch (e: Exception) {
+                    Log.e("DatabaseSeeder", "Failed to seed database", e)
+                }
+
             }
         }
     }
