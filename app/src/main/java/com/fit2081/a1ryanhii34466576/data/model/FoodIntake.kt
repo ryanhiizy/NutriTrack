@@ -2,21 +2,25 @@ package com.fit2081.a1ryanhii34466576.data.model
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "food_intakes",
-    foreignKeys =
-        [ForeignKey(
+    primaryKeys = ["userId", "timestamp"],
+    foreignKeys = [
+        ForeignKey(
             entity = Patient::class,
             parentColumns = ["userId"],
             childColumns = ["userId"],
             onDelete = ForeignKey.CASCADE
-        )]
+        )
+    ]
 )
 data class FoodIntake(
-    @PrimaryKey val userId: String,
-    val selectedCategories: String, // comma-separated list
+    // Composite primary key to keep track of multiple entries for the same user
+    val userId: String,
+    val timestamp: Long = System.currentTimeMillis(),
+
+    val selectedCategories: String,
     val persona: String,
     val mealTime: String,
     val sleepTime: String,
