@@ -83,14 +83,11 @@ fun BottomBarButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        IconButton(onClick = onClick) {
+    IconButton(onClick, modifier) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
             icon()
+            Text(label, style = MaterialTheme.typography.labelSmall)
         }
-        Text(label, style = MaterialTheme.typography.labelSmall)
     }
 }
 
