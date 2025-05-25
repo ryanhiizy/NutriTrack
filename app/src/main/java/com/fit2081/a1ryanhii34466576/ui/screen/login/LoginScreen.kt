@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -25,12 +26,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
@@ -42,18 +41,19 @@ import androidx.navigation.NavController
 fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = viewModel()) {
     val claimedUsers by loginViewModel.claimedUsers.collectAsState()
     val navTarget by loginViewModel.loginNavigationTarget.collectAsState()
-
-    var selectedUserId by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var showPassword by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
-    var expanded by remember { mutableStateOf(false) }
+    val selectedUserId by loginViewModel.selectedUserId.collectAsState()
+    val password by loginViewModel.password.collectAsState()
+    val showPassword by loginViewModel.showPassword.collectAsState()
+    val errorMessage by loginViewModel.errorMessage.collectAsState()
+    val expanded by loginViewModel.dropdownExpanded.collectAsState()
 
     LaunchedEffect(navTarget) {
+        // Navigate to the target screen if it is set
         navTarget?.let {
             navController.navigate(it) {
                 popUpTo("login") { inclusive = true }
             }
+            // Clear the navigation target after navigating
             loginViewModel.clearNavigationTarget()
         }
     }
@@ -68,27 +68,28 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // User ID dropdown
-        ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { loginViewModel.toggleDropdown() }
+        ) {
             OutlinedTextField(
                 value = selectedUserId,
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("Select User ID") },
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
-                modifier =
-                    Modifier
-                        .menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
-                        .fillMaxWidth()
+                modifier = Modifier
+                    .menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
+                    .fillMaxWidth()
             )
-            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { loginViewModel.toggleDropdown() }
+            ) {
                 claimedUsers.forEach {
                     DropdownMenuItem(
                         text = { Text(it.userId) },
-                        onClick = {
-                            selectedUserId = it.userId
-                            expanded = false
-                        }
+                        onClick = { loginViewModel.onUserIdSelected(it.userId) }
                     )
                 }
             }
@@ -96,24 +97,23 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Password
         OutlinedTextField(
             value = password,
-            onValueChange = { password = it },
+            onValueChange = { loginViewModel.onPasswordChange(it) },
             label = { Text("Password") },
             singleLine = true,
-            visualTransformation =
-                if (showPassword) VisualTransformation.None
-                else PasswordVisualTransformation(),
+            // Apply visual transformation based on password visibility
+            visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+            // Add icon for password visibility toggle
             trailingIcon = {
-                IconButton(onClick = { showPassword = !showPassword }) {
+                IconButton(onClick = { loginViewModel.togglePasswordVisibility() }) {
                     Icon(
-                        if (showPassword) Icons.Filled.Visibility
-                        else Icons.Filled.VisibilityOff,
+                        if (showPassword) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
                         null
                     )
                 }
             },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -130,22 +130,7 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
-            onClick = {
-                errorMessage = when {
-                    selectedUserId.isBlank() && password.isBlank() -> "Please fill all fields"
-                    selectedUserId.isBlank() -> "Please select a user ID"
-                    password.isBlank() -> "Please enter your password"
-                    else -> null
-                }
-
-                if (errorMessage == null) {
-                    loginViewModel.authenticate(selectedUserId, password) { success ->
-                        if (!success) {
-                            errorMessage = "Invalid credentials"
-                        }
-                    }
-                }
-            },
+            onClick = { loginViewModel.attemptLogin {} },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Continue")
