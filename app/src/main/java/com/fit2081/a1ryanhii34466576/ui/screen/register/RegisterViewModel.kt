@@ -91,14 +91,18 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun registerUserIfValid(onSuccess: () -> Unit) {
+        val password = _password.value
         val error = when {
             _selectedUserId.value.isBlank() ||
                     _name.value.isBlank() ||
                     _phoneNumber.value.isBlank() ||
-                    _password.value.isBlank() ||
-                    _confirmPassword.value.isBlank() -> "Please fill all fields"
+                    password.isBlank() ||
+                    _confirmPassword.value.isBlank() ->
+                "Please fill all fields"
 
-            _password.value != _confirmPassword.value -> "Passwords do not match"
+            PasswordUtil.validate(password, _confirmPassword.value) != null ->
+                PasswordUtil.validate(password, _confirmPassword.value)
+
             else -> null
         }
 
