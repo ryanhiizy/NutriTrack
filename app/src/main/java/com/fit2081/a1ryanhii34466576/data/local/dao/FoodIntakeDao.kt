@@ -1,6 +1,7 @@
 package com.fit2081.a1ryanhii34466576.data.local.dao
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import com.fit2081.a1ryanhii34466576.data.model.FoodIntake
@@ -16,4 +17,7 @@ interface FoodIntakeDao {
 
     @Query("SELECT * FROM food_intakes WHERE userId = :userId ORDER BY timestamp DESC")
     fun getAllFoodIntakes(userId: String): Flow<List<FoodIntake>>
+
+    @Delete
+    suspend fun deleteFoodIntake(foodIntake: FoodIntake)
 }
