@@ -20,5 +20,9 @@ class PatientRepository(context: Context) {
 
     suspend fun insertAllPatients(patients: List<Patient>) =
         withContext(Dispatchers.IO) { patientDao.insertAllPatients(patients) }
+
+    suspend fun updatePatient(patient: Patient) {
+        withContext(Dispatchers.IO) { patientDao.updatePatient(patient) }
+    }
 }
     
