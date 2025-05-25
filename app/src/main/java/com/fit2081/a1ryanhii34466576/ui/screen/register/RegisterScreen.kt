@@ -16,7 +16,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults.TrailingIcon
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -28,9 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -48,22 +45,24 @@ fun RegisterScreen(
     registerViewModel: RegisterViewModel = viewModel()
 ) {
     val unregisteredUsers by registerViewModel.unclaimedUsers.collectAsState()
-    var selectedUserId by remember { mutableStateOf("") }
-    var name by remember { mutableStateOf("") }
-    var phoneNumber by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
-    var showPassword by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf<String?>(null) }
-    var expanded by remember { mutableStateOf(false) }
+    val selectedUserId by registerViewModel.selectedUserId.collectAsState()
+    val name by registerViewModel.name.collectAsState()
+    val phoneNumber by registerViewModel.phoneNumber.collectAsState()
+    val password by registerViewModel.password.collectAsState()
+    val confirmPassword by registerViewModel.confirmPassword.collectAsState()
+    val showPassword by registerViewModel.showPassword.collectAsState()
+    val expanded by registerViewModel.expanded.collectAsState()
+    val errorMessage by registerViewModel.errorMessage.collectAsState()
 
-    LaunchedEffect(Unit) { registerViewModel.loadUnclaimedUsers() }
+    LaunchedEffect(Unit) {
+        registerViewModel.loadUnclaimedUsers()
+    }
 
     Column(
         modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
+            .fillMaxSize()
+            .padding(16.dp)
+            .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("Register", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold)
@@ -71,25 +70,28 @@ fun RegisterScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         // User ID dropdown
-        ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = !expanded }) {
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { registerViewModel.toggleDropdown() }
+        ) {
             OutlinedTextField(
                 value = selectedUserId,
                 onValueChange = {},
                 readOnly = true,
                 label = { Text("Select User ID") },
-                trailingIcon = { TrailingIcon(expanded) },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
                 modifier = Modifier
-                        .menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
-                        .fillMaxWidth()
+                    .menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
+                    .fillMaxWidth()
             )
-            ExposedDropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { registerViewModel.toggleDropdown() }
+            ) {
                 unregisteredUsers.forEach {
                     DropdownMenuItem(
                         text = { Text(it.userId) },
-                        onClick = {
-                            selectedUserId = it.userId
-                            expanded = false
-                        }
+                        onClick = { registerViewModel.onUserIdSelected(it.userId) }
                     )
                 }
             }
@@ -100,7 +102,7 @@ fun RegisterScreen(
         // Name
         OutlinedTextField(
             value = name,
-            onValueChange = { name = it },
+            onValueChange = { registerViewModel.onNameChange(it) },
             label = { Text("Name") },
             modifier = Modifier.fillMaxWidth()
         )
@@ -109,40 +111,42 @@ fun RegisterScreen(
         OutlinedTextField(
             value = phoneNumber,
             // Ensure only digits are allowed
-            onValueChange = { if (it.all { c -> c.isDigit() }) phoneNumber = it },
+            onValueChange = { registerViewModel.onPhoneChange(it) },
             label = { Text("Phone Number") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
             modifier = Modifier.fillMaxWidth()
         )
 
         // Password
         OutlinedTextField(
             value = password,
-            onValueChange = { password = it },
+            onValueChange = { registerViewModel.onPasswordChange(it) },
             label = { Text("Password") },
             singleLine = true,
             // Toggle password visibility
             visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
-            // Icon to toggle password visibility
+            // Add icon for password visibility toggle
             trailingIcon = {
-                IconButton(onClick = { showPassword = !showPassword }) {
+                IconButton(onClick = { registerViewModel.togglePasswordVisibility() }) {
                     Icon(
                         if (showPassword) Icons.Filled.Visibility else Icons.Filled.VisibilityOff,
                         contentDescription = null
                     )
                 }
             },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             modifier = Modifier.fillMaxWidth()
         )
 
         // Confirm Password
         OutlinedTextField(
             value = confirmPassword,
-            onValueChange = { confirmPassword = it },
+            onValueChange = { registerViewModel.onConfirmPasswordChange(it) },
             label = { Text("Confirm Password") },
             singleLine = true,
             // Toggle password visibility
             visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -151,8 +155,8 @@ fun RegisterScreen(
                 text = it,
                 color = MaterialTheme.colorScheme.error,
                 modifier = Modifier
-                        .align(Alignment.Start)
-                        .padding(top = 2.dp)
+                    .align(Alignment.Start)
+                    .padding(top = 2.dp)
             )
         }
 
@@ -161,31 +165,10 @@ fun RegisterScreen(
         // Register Button
         Button(
             onClick = {
-                // Validate inputs
-                errorMessage = when {
-                    selectedUserId.isBlank() ||
-                            name.isBlank() ||
-                            phoneNumber.isBlank() ||
-                            password.isBlank() ||
-                            confirmPassword.isBlank() -> "Please fill all fields"
-
-                    password != confirmPassword -> "Passwords do not match"
-                    else -> null
-                }
-
-                if (errorMessage == null) {
-                    registerViewModel.registerUser(
-                        selectedUserId,
-                        name,
-                        phoneNumber,
-                        password,
-                        onSuccess = {
-                            navController.navigate("login") {
-                                popUpTo("register") { inclusive = true }
-                            }
-                        },
-                        onError = { errorMessage = it }
-                    )
+                registerViewModel.registerUserIfValid {
+                    navController.navigate("login") {
+                        popUpTo("register") { inclusive = true }
+                    }
                 }
             },
             modifier = Modifier.fillMaxWidth()
