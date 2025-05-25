@@ -15,4 +15,25 @@ object PasswordUtil {
     fun isPasswordValid(password: String, storedHash: String): Boolean {
         return hashPassword(password) == storedHash
     }
+
+    fun validate(password: String, confirmPassword: String): String? {
+        return when {
+            password != confirmPassword ->
+                "Passwords do not match"
+
+            password.length < 8 ->
+                "Password must be at least 8 characters"
+
+            !password.any { it.isUpperCase() } ->
+                "Password must contain an uppercase letter"
+
+            !password.any { it.isLowerCase() } ->
+                "Password must contain a lowercase letter"
+
+            !password.any { it.isDigit() } ->
+                "Password must contain a digit"
+
+            else -> null
+        }
+    }
 }
