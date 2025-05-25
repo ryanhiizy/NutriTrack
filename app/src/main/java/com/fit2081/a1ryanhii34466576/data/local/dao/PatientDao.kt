@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import com.fit2081.a1ryanhii34466576.data.model.Patient
 import kotlinx.coroutines.flow.Flow
 
@@ -20,4 +21,7 @@ interface PatientDao {
 
     @Query("SELECT * FROM patients")
     fun getAllPatients(): Flow<List<Patient>>
+
+    @Update
+    suspend fun updatePatient(patient: Patient)
 }
