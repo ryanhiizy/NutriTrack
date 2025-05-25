@@ -105,7 +105,7 @@ fun LoginScreen(navController: NavController, loginViewModel: LoginViewModel = v
             onValueChange = { loginViewModel.onPasswordChange(it) },
             label = { Text("Password") },
             singleLine = true,
-            // Apply visual transformation based on password visibility
+            // Toggle password visibility
             visualTransformation = if (showPassword) VisualTransformation.None else PasswordVisualTransformation(),
             // Add icon for password visibility toggle
             trailingIcon = {

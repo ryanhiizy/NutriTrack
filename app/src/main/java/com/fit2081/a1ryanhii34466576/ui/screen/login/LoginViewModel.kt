@@ -8,11 +8,11 @@ import com.fit2081.a1ryanhii34466576.data.model.Patient
 import com.fit2081.a1ryanhii34466576.data.preferences.SessionManager
 import com.fit2081.a1ryanhii34466576.data.repository.FoodIntakeRepository
 import com.fit2081.a1ryanhii34466576.data.repository.PatientRepository
+import com.fit2081.a1ryanhii34466576.util.PasswordUtil
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import org.mindrot.jbcrypt.BCrypt
 
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
     private val patientRepository = PatientRepository(application.applicationContext)
@@ -110,7 +110,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                 val patient = patientRepository.getPatientById(userId)
 
                 // Check if the patient exists and if the password matches
-                if (patient != null && BCrypt.checkpw(password, patient.password)) {
+                if (patient != null && PasswordUtil.isPasswordValid(password, patient.password)) {
                     // Save the user session
                     sessionManager.saveUserSession(userId)
                     _isLoggedIn.value = true
