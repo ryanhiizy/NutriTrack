@@ -11,12 +11,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class InsightsViewModel(application: Application) : AndroidViewModel(application) {
-    private val repo = PatientRepository(application.applicationContext)
+    private val repository = PatientRepository(application.applicationContext)
 
     private val _patient = MutableStateFlow<Patient?>(null)
     val patient: StateFlow<Patient?> = _patient.asStateFlow()
 
     fun loadPatient(userId: String) {
-        viewModelScope.launch { _patient.value = repo.getPatientById(userId) }
+        viewModelScope.launch { _patient.value = repository.getPatientById(userId) }
     }
 }
