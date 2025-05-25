@@ -18,4 +18,7 @@ class FoodIntakeRepository(context: Context) {
 
     fun getAllFoodIntakes(userId: String): Flow<List<FoodIntake>> =
         foodIntakeDao.getAllFoodIntakes(userId)
+
+    suspend fun deleteFoodIntake(foodIntake: FoodIntake) =
+        withContext(Dispatchers.IO) { foodIntakeDao.deleteFoodIntake(foodIntake) }
 }
