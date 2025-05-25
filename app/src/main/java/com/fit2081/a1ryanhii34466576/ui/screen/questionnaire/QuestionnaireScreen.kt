@@ -109,8 +109,7 @@ fun QuestionnaireScreen(
                 "Food Intake Questionnaire",
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.align(Alignment.CenterHorizontally)
             )
 
             Spacer(Modifier.height(16.dp))
