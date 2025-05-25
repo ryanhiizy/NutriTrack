@@ -100,6 +100,7 @@ class RegisterViewModel(application: Application) : AndroidViewModel(application
                     _confirmPassword.value.isBlank() ->
                 "Please fill all fields"
 
+            // .validate() returns an error message if validation fails
             PasswordUtil.validate(password, _confirmPassword.value) != null ->
                 PasswordUtil.validate(password, _confirmPassword.value)
 
