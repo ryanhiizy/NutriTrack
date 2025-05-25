@@ -18,6 +18,9 @@ object PasswordUtil {
 
     fun validate(password: String, confirmPassword: String): String? {
         return when {
+            password.isBlank() ->
+                "Password cannot be empty"
+
             password != confirmPassword ->
                 "Passwords do not match"
 
