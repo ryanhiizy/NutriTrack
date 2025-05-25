@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+// Represents the fields that can be edited in the settings screen
 enum class EditField { NAME, PHONE, PASSWORD }
 
 class SettingsViewModel : ViewModel() {
@@ -47,7 +48,10 @@ class SettingsViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
+                // Load user data from repository
                 val patient = repository.getPatientById(userId)
+
+                // Update state flows with user data
                 if (patient != null) {
                     _userName.value = patient.name
                     _phoneNumber.value = patient.phoneNumber
@@ -61,6 +65,8 @@ class SettingsViewModel : ViewModel() {
     fun openFieldEditDialog(field: EditField) {
         _activeEditField.value = field
         _editError.value = null
+
+        // Reset editable fields based on the field being edited
         when (field) {
             EditField.NAME -> _editableName.value = _userName.value
             EditField.PHONE -> _editablePhone.value = _phoneNumber.value
@@ -101,9 +107,12 @@ class SettingsViewModel : ViewModel() {
 
         viewModelScope.launch {
             try {
+                // Fetch the current user from the repository
                 val current = repository.getPatientById(userId)
+
                 if (current != null) {
                     val updated = when (field) {
+                        // Handle name edit
                         EditField.NAME -> {
                             if (_editableName.value.isBlank()) {
                                 _editError.value = "Name cannot be empty"
@@ -114,6 +123,7 @@ class SettingsViewModel : ViewModel() {
                             }
                         }
 
+                        // Handle phone edit
                         EditField.PHONE -> {
                             val phone = _editablePhone.value
                             if (phone.isBlank()) {
@@ -129,6 +139,7 @@ class SettingsViewModel : ViewModel() {
                             }
                         }
 
+                        // Handle password edit
                         EditField.PASSWORD -> {
                             val password = _editablePassword.value
                             PasswordUtil.validate(password, password)?.let {
@@ -154,6 +165,7 @@ class SettingsViewModel : ViewModel() {
 
     fun logout(context: Context, onLogoutComplete: () -> Unit) {
         try {
+            // Clear session data
             SessionManager(context).clearSession()
             onLogoutComplete()
         } catch (e: Exception) {
