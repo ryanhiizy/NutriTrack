@@ -37,6 +37,7 @@ fun FoodIntakeHistoryScreen(
     userId: String,
     viewModel: FoodIntakeHistoryViewModel = viewModel()
 ) {
+    // Collect the food intakes from the ViewModel
     val foodIntakes by viewModel.foodIntakes.collectAsState()
 
     LaunchedEffect(userId) {
